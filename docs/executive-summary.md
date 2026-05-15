@@ -2,28 +2,28 @@
 
 ## Executive Summary
 
-**Policy-as-Code for Agentic AI Input Treatment**
-**Version:** 0.4-draft
-**Author:** Luke Haider
-**Status:** Research and reference implementation
+**Policy-as-Code for Agentic AI Input Treatment**  
+**Version:** 0.4-draft  
+**Author:** Luke Haider  
+**Status:** Research and reference implementation  
 
 ---
 
 ## The Problem
 
-Agentic AI systems increasingly rely on multiple specialized agents working together. One agent may retrieve information, another may analyze risk, another may generate recommendations, and another may verify the final output.
+Agentic AI systems increasingly rely on multiple specialized agents working together. One agent may retrieve information, another may normalize it, another may cluster related signals, another may generate a score, and another may produce a final report.
 
 A quiet failure mode appears when these agents pass information between each other: the receiving agent often has no formal way to know how each input is allowed to be treated.
 
-Is the input a fixed constraint?
-Is it context?
-Is it a preference?
-Is it a working hypothesis?
-Can the agent modify it, summarize it, optimize it, or substitute a better value?
+Is the input a fixed source record?  
+Is it context?  
+Is it a preference?  
+Is it a working hypothesis?  
+Can the agent modify it, summarize it, optimize it, infer from it, or substitute a better value?
 
 If that treatment is not declared, the agent decides implicitly during reasoning. In many cases that may be harmless. In high-consequence workflows, it can be a serious governance gap.
 
-For example, in an aviation route-analysis system, a filed ATC route may arrive as plain text. Without governance metadata, an agent may treat the route as something it can optimize for efficiency, even though the route should be treated as a fixed operational constraint. The agent may not be reasoning badly. It was never told what kind of reasoning was permitted.
+For example, in an aircraft reliability workflow, a raw machine-generated log, a pilot narrative report, a maintenance resolution note, an agent-inferred cluster, and an aircraft health score all require different treatment. If an agent silently rewrites source evidence, treats an inferred cluster as confirmed fact, or marks a discrepancy resolved without maintenance evidence, the system may produce a polished but poorly governed output.
 
 The failure is not only a reasoning failure. It is an input-treatment governance failure.
 
@@ -35,13 +35,23 @@ The **XYZ Decision Space Model** is a lightweight policy-as-code framework for g
 
 Each data element is assigned a per-agent coordinate binding:
 
-* **X — Treatment Authority:** Who has authority to change the element’s meaning?
-* **Y — Validity Stability:** How temporally stable and reliable is the value?
-* **Z — Consequence:** What happens if the element is mishandled?
+- **X — Treatment Authority:** Who has authority to change the element’s meaning?
+- **Y — Validity Stability:** How temporally stable and reliable is the value?
+- **Z — Consequence:** What happens if the element is mishandled?
 
 Together, these coordinates determine how an agent is allowed to treat the input.
 
 The model does not try to control the internal reasoning of a language model directly. Instead, it controls the structure, metadata, permissions, verification, and audit trail around the inputs that enter the agent’s context.
+
+---
+
+## Capstone Context
+
+This repository supports an MIT Applied Agentic AI certificate capstone focused on the **Aging Aircraft Index (AAI)** agentic system.
+
+AAI is an aviation reliability-intelligence workflow that uses multiple agents to retrieve, normalize, deduplicate, cluster, score, and report aircraft health signals from machine-generated reports, pilot end-of-day reports, maintenance reports, and reference data.
+
+The Route Intelligence Agent (RIA) was an earlier concept driver for the XYZ model, especially around the need to preserve filed ATC routes and FIR sequences as semantically immutable across multi-agent handoffs. In this repository, AAI is the primary capstone application and RIA is a secondary aviation proof-of-concept.
 
 ---
 
@@ -51,11 +61,12 @@ Most agentic systems focus on what agents should produce. Fewer systems explicit
 
 This creates several risks:
 
-* fixed constraints can drift into preferences;
-* contextual information can be promoted into authority;
-* authoritative text can be summarized in a way that changes meaning;
-* dynamic inputs can be used after they become stale;
-* downstream agents can inherit upstream outputs without knowing which parts were fixed, derived, or temporary.
+- fixed source evidence can be silently rewritten;
+- contextual information can be promoted into authority;
+- authoritative text can be summarized in a way that changes meaning;
+- dynamic inputs can be used after they become stale;
+- inferred outputs can be treated as confirmed facts;
+- downstream agents can inherit upstream outputs without knowing which parts were fixed, derived, or temporary.
 
 The XYZ model makes input treatment explicit before reasoning begins.
 
@@ -69,15 +80,15 @@ The model has three main implementation artifacts.
 
 The **Governing Manifest** is a YAML or JSON policy file that declares:
 
-* governed elements;
-* agents;
-* per-agent X/Y/Z coordinate bindings;
-* treatment posture for each element;
-* semantic permissions;
-* verification requirements;
-* override conditions;
-* audit requirements;
-* semantic compliance checks.
+- governed elements;
+- agents;
+- per-agent X/Y/Z coordinate bindings;
+- treatment posture for each element;
+- semantic permissions;
+- verification requirements;
+- override conditions;
+- audit requirements;
+- semantic compliance checks.
 
 This manifest is the policy-as-code layer.
 
@@ -100,15 +111,15 @@ A **Posture Envelope** carries the value plus its governance metadata.
 
 It includes:
 
-* element ID;
-* value;
-* X/Y/Z coordinates;
-* posture label;
-* semantic permission statement;
-* override conditions;
-* integrity hash;
-* timestamp;
-* verification and audit metadata as needed.
+- element ID;
+- value;
+- X/Y/Z coordinates;
+- posture label;
+- semantic permission statement;
+- override conditions;
+- integrity hash;
+- timestamp;
+- verification and audit metadata as needed.
 
 Agents receive governed payloads rather than unannotated raw values.
 
@@ -146,13 +157,14 @@ Temporary internal working state. It is not authoritative and is not passed down
 
 A key feature of the model is that the same element can have different treatment rules for different agents.
 
-For example, the destination airport `KSEA` may be:
+In AAI, a maintenance resolution note may be:
 
-| Agent                     | Treatment                                                      |
-| ------------------------- | -------------------------------------------------------------- |
-| Route Decomposition Agent | IMMUTABLE — use as fixed mission destination                   |
-| Airspace Security Agent   | ANCHORED — use as stable context for risk assessment           |
-| Diversion Analysis Agent  | NEGOTIABLE — evaluate alternatives only within diversion logic |
+| Agent | Treatment |
+|---|---|
+| Retrieval Agent | IMMUTABLE — preserve exact source text and metadata |
+| Normalization Agent | ANCHORED — extract structure while preserving source meaning |
+| Health Scoring Agent | ANCHORED — use as authoritative context for resolution status |
+| Report Generation Agent | ANCHORED — summarize without changing operative meaning |
 
 This is not inconsistency. It reflects that each agent has a different authority relationship to the same data.
 
@@ -166,7 +178,7 @@ The model separates two kinds of enforcement.
 
 Integrity checks detect whether a value was structurally changed.
 
-Example: if an immutable ATC route has a different hash at handoff, the route was modified.
+Example: if an immutable raw machine log or source evidence link has a different hash at handoff, the source evidence was modified.
 
 ### Semantic Compliance Checks
 
@@ -174,11 +186,12 @@ Semantic compliance checks detect whether the value was misused even if it was n
 
 Examples include:
 
-* no substitution;
-* no route expansion;
-* no promotion of adjacent FIRs into transit FIRs;
-* no treating a constraint as a preference;
-* no inferred optimization.
+- no source rewriting;
+- no unsupported resolution claim;
+- no treating inferred status as maintenance-confirmed status;
+- no health score without evidence;
+- no silent cluster merge;
+- no treating a fixed route constraint as a preference.
 
 This distinction is important. A hash can prove a value did not change. It cannot prove the agent used the value correctly.
 
@@ -204,29 +217,37 @@ These scores are not validated operational risk metrics. They are design heurist
 
 ---
 
-## Aviation Proof of Concept
+## Primary Capstone Application: Aging Aircraft Index
 
-The initial proof of concept is based on an aviation route-analysis multi-agent system.
+The primary application in this repository is the **Aging Aircraft Index** agentic system.
 
-In this use case, certain elements must remain semantically fixed across agent handoffs:
+In AAI, different elements require different treatment rules:
 
-* filed ATC route;
-* flight level;
-* destination;
-* FIR sequence;
-* route structure.
+- raw Top of Descent machine logs should be preserved as source evidence;
+- pilot and maintenance reports may be interpreted but not silently rewritten;
+- source timestamps and aircraft identifiers must remain fixed;
+- normalized event records are agent-generated structured outputs;
+- deduplication links and cluster IDs are agent-generated analytical structures;
+- discrepancy status must distinguish maintenance-confirmed status from inferred status;
+- health scores are agent-generated analytical products requiring evidence and auditability;
+- final reports must preserve source references and confidence boundaries.
 
-Other elements are dynamic or agent-assessed:
+XYZ provides a way to declare these distinctions as policy before each agent reasons over the data.
 
-* SIGMET data;
-* FIR risk scores;
-* diversion candidates;
-* medical capability assessments;
-* airport suitability rankings.
+---
 
-The XYZ model allows these elements to be governed differently. A filed route can be marked `IMMUTABLE`, while diversion candidates can be `AGENT_OWNED`, and SIGMET data can be `ANCHORED` but subject to staleness checks.
+## Secondary Concept Driver: Route Intelligence Agent
 
-This prevents an agent from treating a fixed ATC route as a negotiable fuel-efficiency preference while still allowing appropriate reasoning over diversion options and risk assessments.
+The model was originally motivated by route-intelligence examples where a filed ATC route or FIR sequence could be incorrectly treated as negotiable by a downstream agent.
+
+Those examples remain useful because they clearly illustrate semantic immutability, gateway enforcement, hash integrity checks, and semantic compliance checks such as:
+
+- `no_substitution`;
+- `no_expansion`;
+- `no_promotion`;
+- `no_optimization`.
+
+RIA demonstrates preservation of fixed route constraints. AAI demonstrates a broader lifecycle: source evidence, derived structure, clustering, scoring, reporting, and verification.
 
 ---
 
@@ -234,22 +255,22 @@ This prevents an agent from treating a fixed ATC route as a negotiable fuel-effi
 
 The XYZ Decision Space Model does not replace existing governance approaches. It addresses a specific gap.
 
-| Approach               | Primary Focus                           | Gap XYZ Addresses                                     |
-| ---------------------- | --------------------------------------- | ----------------------------------------------------- |
-| Constitutional AI      | Output behavior and refusal rules       | Input treatment before reasoning begins               |
-| RAG metadata filtering | What content is retrieved               | What agents may do with retrieved content             |
-| Tool/function schemas  | API structure and required fields       | Semantic authority and mutability of values           |
-| Data contracts         | Data format and quality                 | Reasoning permissions over data                       |
-| Formal verification    | Deterministic state-machine correctness | Probabilistic agents handling natural language inputs |
+| Approach | Primary Focus | Gap XYZ Addresses |
+|---|---|---|
+| Constitutional AI | Output behavior and refusal rules | Input treatment before reasoning begins |
+| RAG metadata filtering | What content is retrieved | What agents may do with retrieved content |
+| Tool/function schemas | API structure and required fields | Semantic authority and mutability of values |
+| Data contracts | Data format and quality | Reasoning permissions over data |
+| Formal verification | Deterministic state-machine correctness | Probabilistic agents handling natural language inputs |
 
 The contribution of XYZ is the combination of:
 
-* per-agent input-treatment binding;
-* design-time semantic permission declaration;
-* governed payloads;
-* gateway enforcement;
-* integrity plus semantic compliance checks;
-* governance design scoring.
+- per-agent input-treatment binding;
+- design-time semantic permission declaration;
+- governed payloads;
+- gateway enforcement;
+- integrity plus semantic compliance checks;
+- governance design scoring.
 
 ---
 
@@ -259,15 +280,16 @@ This repository is intended to serve as a concept evidence package and reference
 
 It includes or is expected to include:
 
-* whitepaper;
-* executive summary;
-* formal model specification;
-* governing manifest schema;
-* posture envelope schema;
-* aviation proof-of-concept manifest;
-* reference Python implementation;
-* basic tests;
-* MIT capstone support materials.
+- whitepaper;
+- executive summary;
+- formal model specification;
+- governing manifest schema;
+- posture envelope schema;
+- AAI capstone documentation;
+- AAI example governing manifest;
+- RIA concept-driver materials;
+- reference Python implementation;
+- basic tests.
 
 The goal is to show that the XYZ Decision Space Model is not just an abstract idea. It can be documented, represented as policy, applied to a real multi-agent workflow, and implemented in lightweight runtime logic.
 
