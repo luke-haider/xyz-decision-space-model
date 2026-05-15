@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use or reference this work, please cite it as below."
+title: "XYZ Decision Space Model: Policy-as-Code for Agentic AI Input Treatment"
+type: software
+authors:
+  - family-names: Haider
+    given-names: Luke
+version: "0.4-draft"
+date-released: "2026-05-14"
+abstract: >
+  The XYZ Decision Space Model is a policy-as-code framework for governing
+  semantic input treatment in agentic AI pipelines. It assigns each data
+  element a per-agent coordinate binding for treatment authority, validity
+  stability, and consequence, producing posture envelopes that declare how
+  agents may treat inputs before reasoning begins.
+repository-code: "https://github.com/luke-haider/xyz-decision-space-model"
+keywords:
+  - agentic-ai
+  - ai-governance
+  - policy-as-code
+  - multi-agent-systems
+  - semantic-governance
+  - aviation
+license: "NOASSERTION"
