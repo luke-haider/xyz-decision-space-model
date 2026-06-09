@@ -2,6 +2,16 @@
 
 **Policy-as-code for semantic input treatment in agentic AI pipelines.**
 
-The XYZ Decision Space Model is a lightweight governance framework for multi-agent AI systems. It defines how each agent is allowed to treat each input before reasoning begins.
+The XYZ Decision Space Model is a lightweight governance framework for multi-agent AI systems. It defines how each agent may treat each input before reasoning begins.
 
-In many agentic workflows, agents receive inputs without knowing whether those inputs are fixed constraints, contextual evidence, preferences, temporary
+## What It Demonstrates
+
+- Agentic AI governance
+- Policy-as-code input treatment
+- Multi-agent workflow design
+- Aviation reliability intelligence concepts
+- JSON/YAML manifest patterns
+
+## Core Idea
+
+Each governed
