@@ -14,4 +14,4 @@ The XYZ Decision Space Model is a lightweight governance framework for multi-age
 
 ## Core Idea
 
-Each
+Each governed input gets an XYZ binding:
